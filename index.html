@@ -254,49 +254,74 @@
   .report-copy h2 { font-family: var(--serif); font-weight: 600; font-size: clamp(2.1rem, 4.2vw, 3.3rem); line-height: 1.02; letter-spacing: -0.02em; }
   .report-copy > p { color: var(--muted); font-size: 18px; margin-top: 18px; max-width: 46ch; }
   .checks { list-style: none; margin: 26px 0 0; display: flex; flex-direction: column; gap: 13px; }
-  .checks li { display: flex; align-items: flex-start; gap: 12px; font-size: 16px; color: var(--text); }
+  .checks li { display: flex; align-items: flex-start; gap: 11px; font-size: 16px; color: var(--text); }
   .checks li b { font-weight: 600; }
+  .checks .ct { flex: 1; line-height: 1.5; }
   .checks .ck { flex-shrink: 0; width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center; font-size: 12px; font-weight: 700; color: #0A0B0E; background: var(--lime); margin-top: 1px; }
-  .report-foot { margin-top: 24px; font-size: 14.5px; color: var(--faint); font-style: italic; font-family: var(--serif); }
+  .report-foot { margin-top: 24px; font-size: 14.5px; color: var(--muted); }
+  .report-foot b { color: var(--lime); font-weight: 600; }
+  .kbd { font-family: var(--mono); font-size: 13px; color: var(--text); background: rgba(255,255,255,0.08); border: 1px solid var(--border-strong); border-radius: 5px; padding: 1px 6px; }
 
   .report-visual { position: relative; }
-  .report {
-    position: relative; background: linear-gradient(180deg, #15171d, #0e1014);
-    border: 1px solid var(--border-strong); border-radius: 20px; padding: 24px;
-    box-shadow: 0 40px 90px -40px rgba(0,0,0,0.9);
-  }
-  .report-head { display: flex; align-items: flex-start; justify-content: space-between; padding-bottom: 18px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
-  .report-head .r-k { font-family: var(--serif); font-weight: 600; font-size: 21px; }
-  .report-head .r-date { font-family: var(--mono); font-size: 11px; color: var(--faint); margin-top: 5px; letter-spacing: 0.03em; }
-  .r-badge { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--lime); border: 1px solid color-mix(in srgb, var(--lime) 35%, transparent); background: color-mix(in srgb, var(--lime) 10%, transparent); padding: 5px 10px; border-radius: 999px; }
-  .report-rows { display: flex; flex-direction: column; }
-  .r-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 0; font-size: 15px; color: var(--muted); border-bottom: 1px dashed var(--border); }
-  .r-row b { font-family: var(--mono); font-weight: 700; font-size: 15px; color: var(--text); }
-  .r-row.total { border-bottom: none; margin-top: 4px; padding-top: 14px; border-top: 1px solid var(--border-strong); }
-  .r-row.total span { color: var(--text); font-weight: 600; font-size: 16px; }
-  .r-row.total b { font-size: 19px; }
-  .report-split { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; margin: 16px 0; }
-  .report-split .rs { background: rgba(0,0,0,0.28); border: 1px solid var(--border); border-radius: 12px; padding: 13px 14px; }
-  .rs-k { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); }
-  .rs-v { font-family: var(--mono); font-weight: 700; font-size: 17px; margin-top: 7px; }
-  .rs-v.lime { color: var(--lime); }
-  .report-actions { display: flex; gap: 10px; }
-  .r-btn {
-    display: inline-flex; align-items: center; gap: 8px; font-family: var(--sans); font-weight: 600; font-size: 13.5px;
-    padding: 11px 15px; border-radius: 10px; border: 1px solid var(--border-strong); background: transparent; color: var(--muted); cursor: pointer; transition: all .18s;
-  }
-  .r-btn:hover { color: var(--text); border-color: var(--text); }
-  .r-btn svg { width: 16px; height: 16px; }
-  .r-btn.primary { background: var(--lime); color: #0A0B0E; border-color: var(--lime); flex: 1; justify-content: center; }
-  .r-btn.primary:hover { background: color-mix(in srgb, var(--lime) 85%, white); color: #0A0B0E; }
-  .r-btn.primary.flash { animation: flash .5s ease; }
-  @keyframes flash { 0%,100% { transform: scale(1);} 45% { transform: scale(0.96);} }
-  .r-cursor {
-    position: absolute; right: 92px; bottom: -14px; display: flex; align-items: center; gap: 6px;
-    color: var(--lime); pointer-events: none; animation: bob 5s ease-in-out infinite;
-  }
-  .r-cursor svg { width: 20px; height: 20px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
-  .r-cursor em { font-family: var(--mono); font-size: 11px; font-weight: 700; font-style: normal; background: rgba(20,22,28,0.92); border: 1px solid var(--border-strong); padding: 3px 8px; border-radius: 7px; }
+  .papers { position: relative; padding: 6px 0 310px; }
+  .paper { background: #FBFBF9; color: #1b1c1a; border-radius: 10px; box-shadow: 0 30px 70px -28px rgba(0,0,0,0.9); }
+  .pr-logo { font-family: var(--serif); font-weight: 700; font-size: 19px; color: #16170f; letter-spacing: -0.01em; font-variation-settings: "opsz" 40, "wght" 700, "SOFT" 0, "WONK" 0; }
+  .pr-logo .jl { color: #7BA600; font-variation-settings: "opsz" 40, "wght" 700, "SOFT" 40, "WONK" 1; }
+  .pr-logo.sm { font-size: 16px; }
+
+  /* daily close report */
+  .paper-report { position: relative; z-index: 1; padding: 17px 18px 16px; }
+  .pr-head { display: flex; align-items: flex-start; justify-content: space-between; padding-bottom: 12px; border-bottom: 1.5px solid #E7E7E2; }
+  .pr-brand { display: flex; flex-direction: column; gap: 4px; }
+  .pr-biz { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: #6c6d66; }
+  .pr-meta { text-align: right; display: flex; flex-direction: column; gap: 3px; }
+  .pr-meta b { font-size: 11.5px; color: #2a2b27; font-weight: 700; }
+  .pr-meta span { font-family: var(--mono); font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: #9a9b93; }
+  .pr-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin: 13px 0; }
+  .ps { border: 1px solid #E7E7E2; border-radius: 8px; padding: 8px 9px; background: #fff; }
+  .ps span { font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.07em; text-transform: uppercase; color: #8a8b83; display: block; }
+  .ps b { font-family: var(--mono); font-weight: 700; font-size: 13px; margin-top: 5px; display: block; color: #23241f; }
+  .ps.g { background: #F1F8E4; border-color: #D6E8AE; }
+  .ps.g b { color: #4f7a16; }
+  .ps.i b { color: #3f7a16; }
+  .ps.e { background: #FCEEEE; border-color: #F2CFCF; }
+  .ps.e b { color: #c0392b; }
+  .ps.a { background: #FCF6E4; border-color: #EEDDAE; }
+  .ps.a b { color: #a9810a; }
+  .pr-tbl-h { display: flex; align-items: center; justify-content: space-between; font-size: 11px; font-weight: 700; color: #2a2b27; margin: 6px 0 4px; }
+  .pr-tag { font-family: var(--mono); font-size: 8px; color: #9a9b93; font-weight: 500; letter-spacing: 0.05em; }
+  .pr-tbl { display: flex; flex-direction: column; }
+  .pr-tr { display: grid; grid-template-columns: 36px 1fr auto auto; align-items: center; gap: 9px; padding: 6px 0; border-bottom: 1px solid #EEEEE9; font-size: 10.5px; }
+  .pr-tr .t { font-family: var(--mono); color: #9a9b93; font-size: 9px; }
+  .pr-tr .d { color: #2a2b27; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pr-tr .m { font-family: var(--mono); font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .pr-tr b { font-family: var(--mono); font-weight: 700; font-size: 10.5px; color: #23241f; }
+  .pr-tr b.pos { color: #3f7a16; }
+  .pr-tr b.neg { color: #c0392b; }
+  .pr-credit { display: flex; align-items: center; justify-content: space-between; margin-top: 11px; background: #FCF6E4; border: 1px solid #EEDDAE; border-radius: 8px; padding: 9px 11px; font-size: 10.5px; font-weight: 600; color: #8a6a08; }
+  .pr-credit b { font-family: var(--mono); font-weight: 700; }
+
+  /* sale receipt (overlapping) */
+  .paper-receipt { position: absolute; z-index: 2; right: -28px; bottom: 10px; width: 50%; padding: 15px 15px 13px; transform: rotate(4deg); }
+  .rc-head { display: flex; align-items: center; justify-content: space-between; padding-bottom: 11px; border-bottom: 1.5px solid #E7E7E2; }
+  .rc-badge { background: #2E7D32; color: #fff; font-family: var(--mono); font-size: 7.5px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; padding: 4px 8px; border-radius: 5px; }
+  .rc-emit { display: flex; justify-content: space-between; margin: 12px 0; }
+  .rc-r { text-align: right; }
+  .rc-k { font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.07em; text-transform: uppercase; color: #9a9b93; display: block; margin-bottom: 4px; }
+  .rc-emit b { font-size: 10.5px; color: #2a2b27; font-weight: 700; }
+  .rc-detail { border-top: 1px solid #EEEEE9; }
+  .rc-d-h { display: grid; grid-template-columns: 32px 1fr auto; gap: 8px; padding: 8px 0 5px; font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.05em; text-transform: uppercase; color: #9a9b93; border-bottom: 1px solid #EEEEE9; }
+  .rc-d-row { display: grid; grid-template-columns: 32px 1fr auto; gap: 8px; padding: 9px 0; font-size: 11px; color: #2a2b27; font-weight: 600; align-items: center; }
+  .rc-d-row b { font-family: var(--mono); font-weight: 700; }
+  .rc-total { display: flex; align-items: center; justify-content: space-between; background: #F1F8E4; border: 1px solid #D6E8AE; border-radius: 8px; padding: 10px 12px; margin: 6px 0 10px; }
+  .rc-total span { font-family: var(--mono); font-size: 8px; letter-spacing: 0.07em; text-transform: uppercase; color: #5d7a2e; }
+  .rc-total b { font-family: var(--mono); font-weight: 700; font-size: 16px; color: #3f7a16; }
+  .rc-son { font-family: var(--mono); font-size: 8.5px; color: #6c6d66; background: #F5F5F1; border-radius: 6px; padding: 8px 10px; text-transform: uppercase; letter-spacing: 0.02em; }
+  .rc-foot { font-family: var(--mono); font-size: 7.5px; color: #b3b4ac; text-align: center; margin-top: 11px; }
+
+  .r-cursor { position: absolute; z-index: 3; top: -18px; right: -14px; display: flex; align-items: center; gap: 7px; pointer-events: none; animation: bob 5s ease-in-out infinite; }
+  .r-cursor svg { width: 22px; height: 22px; color: #fff; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)); }
+  .r-cursor em { font-family: var(--sans); font-size: 11.5px; font-weight: 700; font-style: normal; color: #0A0B0E; background: var(--lime); padding: 6px 11px; border-radius: 8px; box-shadow: 0 8px 20px -6px rgba(0,0,0,0.6); }
 
   /* ---------- final cta ---------- */
   .final { position: relative; margin: 40px 0 90px; }
@@ -329,8 +354,10 @@
     .bento { grid-template-columns: 1fr 1fr; }
     .card.wide { grid-column: span 2; }
     .card.tall { grid-row: span 1; }
-    .steps { grid-template-columns: 1fr; }
-    .step .line { display: none; }
+    .report-grid { grid-template-columns: 1fr; gap: 40px; }
+    .paper-receipt { position: relative; right: auto; bottom: auto; width: 78%; margin: -18px 0 0 auto; transform: rotate(2deg); }
+    .papers { padding-bottom: 10px; }
+    .r-cursor { display: none; }
   }
   @media (max-width: 680px) {
     body { font-size: 16px; }
@@ -351,10 +378,10 @@
     <div class="nav-links">
       <a class="link" href="#features">Funcionalidades</a>
       <a class="link" href="#reportes">Reportes</a>
-      <a class="link" href="#pagos">Pagos</a>
+      <a class="link" href="#demo">Gratis</a>
     </div>
     <div class="nav-cta">
-      <a class="btn btn-primary" href="#demo">Abrir demo</a>
+      <a class="btn btn-primary" href="https://percy735.github.io/kajita/" target="_blank" rel="noopener">Abrir demo</a>
     </div>
   </div>
 </nav>
@@ -370,7 +397,7 @@
       <h1 class="display" id="heroTitle">Vende<span class="stop">.</span><br />Registra<span class="stop">.</span><br />Crece<span class="stop">.</span></h1>
       <p class="hero-sub" id="heroSub">La caja diaria para <b>emprendedores y negocios pequeños</b>. Anota cada venta, controla tu efectivo y tus créditos, y sabe cuánto ganaste hoy.</p>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="#demo" id="heroCta">
+        <a class="btn btn-primary" href="https://percy735.github.io/kajita/" target="_blank" rel="noopener" id="heroCta">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 3l14 9-14 9V3z" fill="currentColor" stroke="none"/></svg>
           <span id="heroCtaLabel">Probar en el navegador</span>
         </a>
@@ -493,53 +520,72 @@
   </div>
 </section>
 
-<!-- REPORTS / CLOSE OF DAY -->
+<!-- REPORTS & RECEIPTS -->
 <section class="block" id="reportes" style="background:var(--bg-2); border-top:1px solid var(--border); border-bottom:1px solid var(--border)">
   <div class="wrap report-grid">
     <div class="report-copy reveal">
-      <span class="label">Cierre de caja</span>
-      <h2>Tu reporte del día,<br />listo en un click.</h2>
-      <p>Durante el día solo registras tus ventas y gastos. Al cerrar, Kajita arma el reporte completo — sin sumar nada a mano, sin cuadernos.</p>
+      <span class="label">Reportes y recibos</span>
+      <h2>Imprime tu cierre.<br />Entrega recibos.</h2>
+      <p>Todo lo que registras se vuelve un documento listo para imprimir. Cierras tu caja y sale el reporte del día completo — y por cada venta generas un recibo formal en un click.</p>
       <ul class="checks">
-        <li><span class="ck">✓</span> Ventas, egresos y balance del día, ya cuadrados.</li>
-        <li><span class="ck">✓</span> Cuánto quedó en <b>efectivo</b> y cuánto en <b>digital</b>, separado.</li>
-        <li><span class="ck">✓</span> Lo que te queda <b>por cobrar</b>, con nombre y monto.</li>
-        <li><span class="ck">✓</span> Lo <b>imprimes o exportas</b> para ti, tu socio o tu contador.</li>
+        <li><span class="ck">✓</span><span class="ct"><b>Reporte de cierre</b> del día: ingresos, egresos, balance y lo que queda por cobrar.</span></li>
+        <li><span class="ck">✓</span><span class="ct"><b>Recibo de venta</b> por cada movimiento, con número, método de pago y monto en letras.</span></li>
+        <li><span class="ck">✓</span><span class="ct">Todo listo para <b>imprimir o guardar en PDF</b>, en papel térmico o A4.</span></li>
+        <li><span class="ck">✓</span><span class="ct">Con el <b>nombre de tu negocio</b> en cada documento.</span></li>
       </ul>
-      <p class="report-foot">¿Te equivocaste en un monto? Lo corriges y el reporte se actualiza solo.</p>
+      <p class="report-foot">Desde cualquier movimiento: <span class="kbd">···</span> → <b>Generar recibo</b>. Así de simple.</p>
     </div>
 
     <div class="report-visual reveal">
-      <div class="report">
-        <div class="report-head">
-          <div>
-            <div class="r-k">Reporte del día</div>
-            <div class="r-date">Sábado 31 de mayo, 2026</div>
+      <div class="papers">
+        <!-- daily close report -->
+        <div class="paper paper-report">
+          <div class="pr-head">
+            <div class="pr-brand">
+              <span class="pr-logo">Ka<span class="jl">j</span>ita</span>
+              <span class="pr-biz">Ferretería Llerena</span>
+            </div>
+            <div class="pr-meta"><b>Domingo, 31 mayo 2026</b><span>Cierre de caja · Reporte</span></div>
           </div>
-          <span class="r-badge">Caja cerrada</span>
+          <div class="pr-stats">
+            <div class="ps g"><span>Balance del día</span><b>S/ 280.00</b></div>
+            <div class="ps i"><span>Ingresos</span><b>S/ 330.00</b></div>
+            <div class="ps e"><span>Egresos</span><b>S/ 50.00</b></div>
+            <div class="ps a"><span>Por cobrar</span><b>S/ 200.00</b></div>
+          </div>
+          <div class="pr-tbl-h"><span>Movimientos del día</span><span class="pr-tag">8 registros</span></div>
+          <div class="pr-tbl">
+            <div class="pr-tr"><span class="t">03:45</span><span class="d">VENTA 1</span><span class="m" style="color:var(--amber)">Efectivo</span><b class="pos">+ S/ 50.00</b></div>
+            <div class="pr-tr"><span class="t">03:46</span><span class="d">VENTA 2</span><span class="m" style="color:#7B3FE4">Yape</span><b class="pos">+ S/ 50.00</b></div>
+            <div class="pr-tr"><span class="t">03:46</span><span class="d">VENTA 3</span><span class="m" style="color:var(--plin)">Plin</span><b class="pos">+ S/ 50.00</b></div>
+            <div class="pr-tr"><span class="t">03:47</span><span class="d">PAGO 1</span><span class="m" style="color:var(--amber)">Efectivo</span><b class="neg">– S/ 50.00</b></div>
+            <div class="pr-tr"><span class="t">03:46</span><span class="d">VENTA 6 · César C.</span><span class="m" style="color:#C99A00">Crédito</span><b>S/ 200.00</b></div>
+          </div>
+          <div class="pr-credit"><span>⏳ Créditos pendientes de cobro</span><b>S/ 200.00</b></div>
         </div>
-        <div class="report-rows">
-          <div class="r-row"><span>Ventas del día</span><b class="lime">S/ 1,560.50</b></div>
-          <div class="r-row"><span>Egresos</span><b style="color:var(--red)">– S/ 320.00</b></div>
-          <div class="r-row"><span>Por cobrar</span><b style="color:var(--amber)">S/ 480.00</b></div>
-          <div class="r-row total"><span>Balance del día</span><b class="lime">S/ 1,240.50</b></div>
+
+        <!-- sale receipt -->
+        <div class="paper paper-receipt">
+          <div class="rc-head">
+            <span class="pr-logo sm">Ka<span class="jl">j</span>ita</span>
+            <span class="rc-badge">Recibo de venta</span>
+          </div>
+          <div class="rc-emit">
+            <div><span class="rc-k">Fecha de emisión</span><b>31 may 2026 · 03:45</b></div>
+            <div class="rc-r"><span class="rc-k">N°</span><b>1ad721f3</b></div>
+          </div>
+          <div class="rc-detail">
+            <div class="rc-d-h"><span>Cant.</span><span>Descripción</span><span>Importe</span></div>
+            <div class="rc-d-row"><span>1</span><span>VENTA 1</span><b>S/ 50.00</b></div>
+          </div>
+          <div class="rc-total"><span>Total cobrado</span><b>S/ 50.00</b></div>
+          <div class="rc-son">Son: cincuenta con 00/100 soles</div>
+          <div class="rc-foot">Documento generado por Kajita</div>
+          <span class="r-cursor">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 2l16 7-6 2-2 6L4 2z"/></svg>
+            <em>Generar recibo</em>
+          </span>
         </div>
-        <div class="report-split">
-          <div class="rs"><div class="rs-k">Efectivo en caja</div><div class="rs-v">S/ 760.50</div></div>
-          <div class="rs"><div class="rs-k">Dinero digital</div><div class="rs-v lime">S/ 480.00</div></div>
-        </div>
-        <div class="report-actions">
-          <button class="r-btn primary" id="exportBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
-            Exportar reporte
-          </button>
-          <button class="r-btn">Imprimir</button>
-          <button class="r-btn">PDF</button>
-        </div>
-        <span class="r-cursor" id="rCursor">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 2l16 7-6 2-2 6L4 2z"/></svg>
-          <em>1 click</em>
-        </span>
       </div>
     </div>
   </div>
@@ -553,7 +599,7 @@
       <h2>Tu caja del día,<br />ordenada en segundos.</h2>
       <p>Empieza gratis. Sin instalar nada, sin tarjeta. Ábrela en tu compu o tu celular y registra tu primera venta hoy.</p>
       <div class="final-actions">
-        <a class="btn btn-primary" href="#top">
+        <a class="btn btn-primary" href="https://percy735.github.io/kajita/" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 3l14 9-14 9V3z" fill="currentColor" stroke="none"/></svg>
           Abrir Kajita gratis
         </a>
@@ -569,8 +615,8 @@
     <div class="foot-links">
       <a href="#features">Funcionalidades</a>
       <a href="#reportes">Reportes</a>
-      <a href="#pagos">Pagos</a>
-      <a href="#demo">Abrir demo</a>
+      <a href="#demo">Gratis</a>
+      <a href="https://percy735.github.io/kajita/" target="_blank" rel="noopener">Abrir demo</a>
     </div>
     <span class="muted">© 2026 Kajita · Hecho en Perú 🇵🇪</span>
   </div>
