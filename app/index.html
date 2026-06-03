@@ -515,8 +515,14 @@ header {
 input[type=text], input[type=number], input[type=date] {
   background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
   padding: 10px 14px; font-family: var(--sans); font-size: 14px; color: var(--k-text);
-  outline: none; transition: all 0.2s; width: 100%; -webkit-appearance: none;
+  outline: none; transition: all 0.2s; width: 100%;
 }
+/* Quitar flechitas solo de inputs numéricos */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
+/* Fecha: ocultar ícono nativo del navegador */
+input[type=date]::-webkit-calendar-picker-indicator { opacity: 0; position: absolute; right: 0; width: 100%; cursor: pointer; }
 input::placeholder { color: var(--k-text-3); opacity: 0.6; }
 input:focus { border-color: var(--k-accent); box-shadow: 0 0 0 3px var(--k-accent-l); background: rgba(0,0,0,0.4); }
 
@@ -1598,10 +1604,37 @@ input:focus { border-color: var(--k-accent); box-shadow: 0 0 0 3px var(--k-accen
 }
 .num-fields-row {
   display: grid;
-  grid-template-columns: 80px 1fr 130px;
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
-.fld-qty, .fld-unit, .fld-amt { min-width: 0; }
+.num-stepper {
+  display: flex; align-items: center;
+  background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px; overflow: hidden; width: 100%;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.num-stepper:focus-within {
+  border-color: var(--k-accent); box-shadow: 0 0 0 3px var(--k-accent-l);
+}
+.num-stepper input {
+  flex: 1; min-width: 0; border: none; background: transparent;
+  text-align: center; padding: 10px 0; font-size: 15px;
+  font-family: var(--sans); color: var(--k-text); outline: none;
+  width: 100%;
+}
+.num-stepper input:focus { box-shadow: none; }
+.step-btn {
+  width: 32px; height: 44px; flex-shrink: 0;
+  background: transparent; border: none;
+  color: var(--k-text-3); font-size: 20px; font-weight: 300;
+  cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center;
+  padding-bottom: 2px;
+}
+.step-btn:first-child { border-right: 1px solid rgba(255,255,255,0.07); }
+.step-btn:last-child  { border-left:  1px solid rgba(255,255,255,0.07); }
+.step-btn:hover { background: rgba(196,240,66,0.1); color: var(--k-accent); }
+.step-btn:active { background: rgba(196,240,66,0.18); }
 
 
 /* ══ MOBILE BOTTOM NAV ══ */
@@ -1696,7 +1729,9 @@ input:focus { border-color: var(--k-accent); box-shadow: 0 0 0 3px var(--k-accen
   /* ── FORM ── */
   .form-wrap { padding: 16px 14px; border-radius: 18px; }
   .form-row-main { flex-direction: column; gap: 8px; }
-  .num-fields-row { grid-template-columns: 80px 1fr 110px; gap: 7px; }
+  .num-fields-row { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .step-btn { width: 28px; height: 42px; }
+  .num-stepper input { font-size:14px; padding: 10px 0; }
   .form-row { grid-template-columns: 1fr; }
   .fld label { font-size: 9px; letter-spacing: .05em; }
   .fld input  { font-size: 14px; padding: 10px; }
@@ -1776,7 +1811,7 @@ input:focus { border-color: var(--k-accent); box-shadow: 0 0 0 3px var(--k-accen
   <div class="auth-box">
     <div class="auth-logo"><div style="font-family:'Fraunces',serif;font-size:56px;font-weight:700;letter-spacing:-2px;line-height:1;color:#fff;">Ka<span style="color:#C4F042;">j</span>ita</div></div>
     <div class="auth-subtitle">Tu caja diaria</div>
-    <div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.2);text-align:center;margin-top:-8px;margin-bottom:4px;">v11.9</div>
+    <div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.2);text-align:center;margin-top:-8px;margin-bottom:4px;">v14.5</div>
     
     <div class="auth-tabs">
       <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Iniciar sesión</button>
@@ -1789,13 +1824,36 @@ input:focus { border-color: var(--k-accent); box-shadow: 0 0 0 3px var(--k-accen
     
     <div class="auth-panel" id="panelLogin">
       <form onsubmit="handleLogin(event)">
-        <div class="auth-field">
-          <label>Email</label>
-          <input type="email" id="loginEmail" required autocomplete="email" placeholder="tu@email.com">
+
+        <!-- Toggle Email / Celular -->
+        <div class="login-method-toggle">
+          <button type="button" class="lmt-btn active" id="lmtEmail" onclick="switchLoginMethod('email')">📧 Email</button>
+          <button type="button" class="lmt-btn" id="lmtPhone" onclick="switchLoginMethod('phone')">📱 Celular</button>
         </div>
+
+        <!-- Email field -->
+        <div class="auth-field" id="fieldEmail">
+          <label>Email</label>
+          <input type="email" id="loginEmail" autocomplete="email" placeholder="tu@email.com">
+        </div>
+
+        <!-- Phone field -->
+        <div class="auth-field" id="fieldPhone" style="display:none;">
+          <label>Número de celular</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="background:var(--k-panel-2);border:1px solid var(--k-line);border-radius:10px;padding:0 12px;height:46px;display:flex;align-items:center;color:var(--k-text-3);font-size:14px;white-space:nowrap;">🇵🇪 +51</span>
+            <input type="tel" id="loginPhone" autocomplete="tel" placeholder="999 888 777" maxlength="9" style="flex:1;" oninput="this.value=this.value.replace(/\D/g,'')">
+          </div>
+        </div>
+
         <div class="auth-field">
           <label>Contraseña</label>
-          <input type="password" id="loginPassword" required autocomplete="current-password" placeholder="••••••••">
+          <div style="position:relative;">
+            <input type="password" id="loginPassword" required autocomplete="current-password" placeholder="••••••••" style="padding-right:44px;">
+            <button type="button" onclick="togglePw('loginPassword',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--k-text-3);padding:4px;">
+              <svg id="loginPasswordEye" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
         </div>
         <button type="submit" class="auth-btn" id="loginBtn">
           <span id="loginText">Entrar</span>
@@ -1813,13 +1871,43 @@ input:focus { border-color: var(--k-accent); box-shadow: 0 0 0 3px var(--k-accen
           <label>Nombre de tu negocio</label>
           <input type="text" id="registerBusiness" required maxlength="100" placeholder="Ej: Bodega El Sol">
         </div>
-        <div class="auth-field">
-          <label>Email</label>
-          <input type="email" id="registerEmail" required autocomplete="email" placeholder="tu@email.com">
+
+        <!-- Toggle Email / Celular en registro -->
+        <div class="login-method-toggle">
+          <button type="button" class="lmt-btn active" id="regLmtEmail" onclick="switchRegMethod('email')">📧 Email</button>
+          <button type="button" class="lmt-btn" id="regLmtPhone" onclick="switchRegMethod('phone')">📱 Celular</button>
         </div>
+
+        <div class="auth-field" id="regFieldEmail">
+          <label>Email</label>
+          <input type="email" id="registerEmail" autocomplete="email" placeholder="tu@email.com">
+        </div>
+        <div class="auth-field" id="regFieldPhone" style="display:none;">
+          <label>Número de celular</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="background:var(--k-panel-2);border:1px solid var(--k-line);border-radius:10px;padding:0 12px;height:46px;display:flex;align-items:center;color:var(--k-text-3);font-size:14px;white-space:nowrap;">🇵🇪 +51</span>
+            <input type="tel" id="registerPhone" autocomplete="tel" placeholder="999 888 777" maxlength="9" style="flex:1;" oninput="this.value=this.value.replace(/\D/g,'')">
+          </div>
+        </div>
+
+        <!-- Email de recuperación - solo visible cuando elige celular -->
+        <div class="auth-field" id="regFieldRecovery" style="display:none;">
+          <label style="display:flex;align-items:center;gap:6px;">
+            Email de recuperación
+            <span style="font-size:10px;font-weight:400;color:var(--k-text-3);background:rgba(255,255,255,0.05);border:1px solid var(--k-line);border-radius:99px;padding:2px 8px;">opcional</span>
+          </label>
+          <input type="email" id="registerRecoveryEmail" autocomplete="email" placeholder="para recuperar tu contraseña">
+          <div style="font-size:11px;color:var(--k-text-3);margin-top:5px;">Si olvidas tu contraseña te enviaremos un link aquí.</div>
+        </div>
+
         <div class="auth-field">
           <label>Contraseña</label>
-          <input type="password" id="registerPassword" required minlength="6" autocomplete="new-password" placeholder="Mínimo 6 caracteres">
+          <div style="position:relative;">
+            <input type="password" id="registerPassword" required minlength="6" autocomplete="new-password" placeholder="Mínimo 6 caracteres" style="padding-right:44px;">
+            <button type="button" onclick="togglePw('registerPassword',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--k-text-3);padding:4px;">
+              <svg id="registerPasswordEye" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
         </div>
         <button type="submit" class="auth-btn" id="registerBtn">
           <span id="registerText">Crear cuenta gratis</span>
@@ -1853,6 +1941,12 @@ input:focus { border-color: var(--k-accent); box-shadow: 0 0 0 3px var(--k-accen
 .auth-field input{width:100%;padding:12px 14px;background:rgba(255,255,255,0.05);border:1px solid var(--k-line);border-radius:10px;font-family:var(--sans);font-size:14px;color:var(--k-text);outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
 .auth-field input:focus{border-color:var(--k-accent);box-shadow:0 0 0 3px rgba(196,240,66,0.12);}
 .auth-field input::placeholder{color:var(--k-text-3);}
+
+/* Login method toggle */
+.login-method-toggle{display:flex;gap:6px;margin-bottom:16px;background:rgba(255,255,255,0.03);border:1px solid var(--k-line);border-radius:12px;padding:4px;}
+.lmt-btn{flex:1;padding:8px 12px;border:none;background:transparent;font-family:var(--sans);font-size:13px;font-weight:600;color:var(--k-text-3);border-radius:8px;cursor:pointer;transition:all 0.2s;}
+.lmt-btn:hover{color:var(--k-text-2);}
+.lmt-btn.active{background:var(--k-panel-2);color:var(--k-text);border:1px solid var(--k-line);}
 .auth-btn{width:100%;padding:14px;margin-top:8px;background:var(--k-accent);color:#0A0B0E;border:none;border-radius:12px;font-family:var(--sans);font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;}
 .auth-btn:hover{background:#d0ff4d;transform:translateY(-1px);}
 .auth-btn:active{transform:translateY(0);}
@@ -1885,7 +1979,7 @@ input:focus { border-color: var(--k-accent); box-shadow: 0 0 0 3px var(--k-accen
     <!-- ACCIONES: lupa + tuerca + añadir + imprimir -->
     <div class="nav-actions">
       <!-- Número de versión visible -->
-      <div style="position:fixed;bottom:8px;right:8px;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3);z-index:100;">v11.9</div>
+      <div style="position:fixed;bottom:8px;right:8px;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3);z-index:100;">v14.5</div>
       <button class="btn-search" id="btnSearch" onclick="toggleSearch()" title="Buscar movimiento">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -1898,7 +1992,7 @@ input:focus { border-color: var(--k-accent); box-shadow: 0 0 0 3px var(--k-accen
         </svg>
       </button>
       <button class="btn-nav btn-export" onclick="showPDFPreview()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
         <span class="btn-txt">Imprimir</span>
       </button>
       <button class="btn-nav" onclick="handleLogout()" style="background:rgba(255,107,107,0.1);border-color:var(--k-expense);color:var(--k-expense);" title="Cerrar sesión">
@@ -1955,15 +2049,19 @@ input:focus { border-color: var(--k-accent); box-shadow: 0 0 0 3px var(--k-accen
       <div class="num-fields-row">
         <div class="fld fld-qty">
           <label>Cant.</label>
-          <input type="number" id="iQty" placeholder="—" min="1" step="1" style="text-align:center;" oninput="recalcAmount()">
+          <div class="num-stepper">
+            <button type="button" class="step-btn" onclick="stepField('iQty',-1)">−</button>
+            <input type="number" id="iQty" placeholder="1" min="1" step="1" oninput="recalcAmount()">
+            <button type="button" class="step-btn" onclick="stepField('iQty',1)">+</button>
+          </div>
         </div>
         <div class="fld fld-unit">
           <label>P. Unit. (S/)</label>
-          <input type="number" id="iUnitPrice" placeholder="—" min="0" step="0.01" oninput="recalcAmount()">
+          <input type="number" id="iUnitPrice" placeholder="0.00" min="0" step="0.01" oninput="recalcAmount()">
         </div>
         <div class="fld fld-amt">
           <label>Monto (S/)</label>
-          <input type="number" id="iAmt" placeholder="0.00" min="0" step="0.01">
+          <input type="number" id="iAmt" placeholder="0.00" min="0" step="0.01" oninput="recalcUnitFromAmt()">
         </div>
       </div>
     </div>
@@ -2497,9 +2595,6 @@ input:focus { border-color: var(--k-accent); box-shadow: 0 0 0 3px var(--k-accen
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
     Clientes
   </button>
-  <button class="mbn-center" onclick="document.querySelector('.form-wrap').scrollIntoView({behavior:'smooth'})">
-    <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="#0A0B0E" stroke-width="2.8" stroke-linecap="round"><line x1="13" y1="3" x2="13" y2="23"/><line x1="3" y1="13" x2="23" y2="13"/></svg>
-  </button>
   <button class="mbn-btn" onclick="openPanel('cred')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
     Créditos
@@ -2507,6 +2602,10 @@ input:focus { border-color: var(--k-accent); box-shadow: 0 0 0 3px var(--k-accen
   <button class="mbn-btn" onclick="showPDFPreview()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
     Imprimir
+  </button>
+  <button class="mbn-btn" onclick="handleLogout()" style="color:rgba(239,68,68,0.7);">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    Salir
   </button>
 </nav>
 
@@ -2847,6 +2946,9 @@ function selectProduct(id) {
   const p = products.find(x=>String(x.id)===String(id)); if(!p) return;
   document.getElementById('iDesc').value = p.name;
   document.getElementById('iUnitPrice').value = p.price.toFixed(2);
+  // Poner cantidad en 1 por defecto si está vacía o en 0
+  const qtyEl = document.getElementById('iQty');
+  if(!qtyEl.value || qtyEl.value === '0') qtyEl.value = '1';
   productPickerOpen = false;
   _portalClose('productChips');
   document.getElementById('ftbProdIcon').classList.remove('open');
@@ -3695,6 +3797,25 @@ function setPay(p) {
   const cls = {cash:'pc', yape:'py', plin:'pp', transfer:'pt', card:'pca'};
   document.querySelectorAll('.pay-btn').forEach(b=>b.className='pay-btn'+(b.dataset.pay===p?' '+cls[p]:''));
 }
+function stepField(id,delta){
+  const el=document.getElementById(id);
+  const val=parseFloat(el.value)||0;
+  const mn=parseFloat(el.min)||0;
+  const st=parseFloat(el.step)||1;
+  const dec=st<1?2:0;
+  el.value=Math.max(mn,val+delta).toFixed(dec);
+  recalcAmount();
+}
+
+// Cuando el usuario cambia el Monto, recalcula P.Unit
+function recalcUnitFromAmt(){
+  const amt = parseFloat(document.getElementById('iAmt').value)||0;
+  const qty = parseFloat(document.getElementById('iQty').value)||1;
+  if(amt > 0){
+    document.getElementById('iUnitPrice').value = (amt / qty).toFixed(2);
+  }
+}
+
 function recalcAmount() {
   const qty  = parseFloat(document.getElementById('iQty').value);
   const unit = parseFloat(document.getElementById('iUnitPrice').value);
@@ -3738,6 +3859,39 @@ function setFilter(f,el) {
 
 function save(){ localStorage.setItem('kajita_v4', JSON.stringify(entries)); }
 function fmt(n){ return 'S/ '+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
+
+function togglePw(id, btn){
+  const inp = document.getElementById(id);
+  const isHidden = inp.type === 'password';
+  inp.type = isHidden ? 'text' : 'password';
+  btn.querySelector('svg').innerHTML = isHidden
+    ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>'
+    : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+}
+
+function switchLoginMethod(method){
+  const isPhone = method === 'phone';
+  document.getElementById('fieldEmail').style.display = isPhone ? 'none' : 'block';
+  document.getElementById('fieldPhone').style.display = isPhone ? 'block' : 'none';
+  document.getElementById('lmtEmail').classList.toggle('active', !isPhone);
+  document.getElementById('lmtPhone').classList.toggle('active', isPhone);
+  document.getElementById('loginEmail').required = !isPhone;
+  document.getElementById('loginPhone').required = isPhone;
+}
+
+function switchRegMethod(method){
+  const isPhone = method === 'phone';
+  document.getElementById('regFieldEmail').style.display = isPhone ? 'none' : 'block';
+  document.getElementById('regFieldPhone').style.display = isPhone ? 'block' : 'none';
+  document.getElementById('regFieldRecovery').style.display = isPhone ? 'block' : 'none';
+  document.getElementById('regLmtEmail').classList.toggle('active', !isPhone);
+  document.getElementById('regLmtPhone').classList.toggle('active', isPhone);
+  document.getElementById('registerEmail').required = !isPhone;
+  document.getElementById('registerPhone').required = isPhone;
+}
+
+// Convierte celular peruano a email interno para Supabase
+function phoneToEmail(phone){ return 'cel.' + phone.replace(/[^0-9]/g,'') + '@gmail.com'; }
 
 function switchAuthTab(tab){
   const isLogin = tab==='login';
@@ -3869,25 +4023,13 @@ function generateReceipt(id) {
     <div style="width:100%; box-sizing:border-box; background:#fff; color:${C.ink}; font-family:'Plus Jakarta Sans', sans-serif; font-size:13px; max-width:680px; margin:0 auto;">
 
       <!-- CABECERA -->
-      <div style="background:${C.head}; border-radius:12px 12px 0 0; padding:16px 24px; display:flex; justify-content:space-between; align-items:center;">
-        <div style="display:flex; align-items:center; gap:14px;">
-          <div style="width:44px; height:44px; flex-shrink:0;">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="44" height="44">
-              <rect x="2" y="2" width="96" height="96" rx="22" fill="#C4F042"/>
-              <circle cx="37" cy="41" r="5.5" fill="#1a1a1a"/>
-              <circle cx="63" cy="41" r="5.5" fill="#1a1a1a"/>
-              <line x1="50" y1="52" x2="50" y2="62" stroke="#1a1a1a" stroke-width="4" stroke-linecap="round"/>
-              <path d="M35 70 Q50 82 65 70" stroke="#1a1a1a" stroke-width="4" fill="none" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <div>
-            <div style="display:flex; align-items:baseline; line-height:1;">
-              <span style="font-family:'Fraunces',serif; font-size:24px; font-weight:700; color:${C.headT}; letter-spacing:-0.5px;">Ka</span>
-              <span style="font-family:'Fraunces',serif; font-size:28px; font-weight:700; color:${C.accent}; letter-spacing:-1px; transform:translateY(2px); display:inline-block;">j</span>
-              <span style="font-family:'Fraunces',serif; font-size:24px; font-weight:700; color:${C.headT}; letter-spacing:-0.5px;">ita</span>
-            </div>
-            <div style="font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:.18em; text-transform:uppercase; color:${C.headM}; margin-top:3px;">Sistema de caja diaria</div>
-          </div>
+      <div style="background:${C.head}; border-radius:12px 12px 0 0; padding:18px 24px; display:flex; justify-content:space-between; align-items:center;">
+        <!-- Solo wordmark, sin cajita -->
+        <div style="display:flex; align-items:baseline; line-height:1; gap:0;">
+          <span style="font-family:'Fraunces',serif; font-size:26px; font-weight:700; color:${C.headT}; letter-spacing:-0.5px;">Ka</span>
+          <span style="font-family:'Fraunces',serif; font-size:30px; font-weight:700; color:${C.accent}; letter-spacing:-1px; transform:translateY(2px); display:inline-block;">j</span>
+          <span style="font-family:'Fraunces',serif; font-size:26px; font-weight:700; color:${C.headT}; letter-spacing:-0.5px;">ita</span>
+          ${bizProfile?.name ? `<span style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:${C.headM}; margin-left:12px; align-self:center; border-left:1px solid rgba(0,0,0,0.12); padding-left:12px;">${bizProfile.name}</span>` : ''}
         </div>
         <div style="text-align:right;">
           <div style="display:inline-block; background:${docColor}; color:#fff; font-family:'Plus Jakarta Sans',sans-serif; font-size:11px; font-weight:700; padding:5px 12px; border-radius:99px; letter-spacing:.05em;">${docTitle}</div>
@@ -4002,6 +4144,111 @@ function generateReceipt(id) {
   setTimeout(() => window.print(), 400);
 }
 
+
+async function downloadReport(){
+  toast('⏳ Preparando PDF...');
+
+  // Generar HTML del reporte en memoria (sin mostrarlo)
+  const dayEntries = entries.filter(e=>e.date===activeDay).sort((a,b)=>(b.time||'').localeCompare(a.time||''));
+  const inc  = dayEntries.filter(e=>e.type==='income'&&!e.credit).reduce((s,e)=>s+e.amount,0);
+  const exp  = dayEntries.filter(e=>e.type==='expense').reduce((s,e)=>s+e.amount,0);
+  const cred = dayEntries.filter(e=>e.credit).reduce((s,e)=>s+e.amount,0);
+  const bal  = inc - exp;
+  const cashInc = dayEntries.filter(e=>e.type==='income'&&!e.credit&&e.pay==='cash').reduce((s,e)=>s+e.amount,0);
+  const cashExp = dayEntries.filter(e=>e.type==='expense'&&e.pay==='cash').reduce((s,e)=>s+e.amount,0);
+  const DIG=['yape','plin','transfer','card'];
+  const digInc  = dayEntries.filter(e=>e.type==='income'&&!e.credit&&DIG.includes(e.pay)).reduce((s,e)=>s+e.amount,0);
+  const digExp  = dayEntries.filter(e=>e.type==='expense'&&DIG.includes(e.pay)).reduce((s,e)=>s+e.amount,0);
+
+  const f = n => 'S/ '+n.toFixed(2);
+  const dateObj = new Date(activeDay+'T12:00:00');
+  const dateStr = dateObj.toLocaleDateString('es-PE',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).replace(/^\w/,c=>c.toUpperCase());
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});
+  const bizName = bizProfile?.name || '';
+
+  const rowsHTML = dayEntries.length ? dayEntries.map(e=>{
+    const payLabel = {cash:'Efectivo',yape:'Yape',plin:'Plin',transfer:'Transferencia',card:'Tarjeta',credit:'Crédito'}[e.pay]||e.pay;
+    const sign = e.credit ? '' : (e.type==='expense'?'−':'+');
+    const color = e.credit?'#B45309':(e.type==='expense'?'#EF4444':'#16A34A');
+    return `<tr><td style="color:#6B7280;font-size:11px;font-family:monospace;padding:10px 8px;">${e.time?.substring(0,5)||''}</td>
+      <td style="padding:10px 8px;font-weight:600;">${e.desc}${e.client?`<br><span style="font-size:11px;color:#6B7280;font-weight:400;">${e.client}</span>`:''}</td>
+      <td style="padding:10px 8px;"><span style="background:#F3F4F6;border-radius:99px;padding:3px 10px;font-size:11px;font-family:monospace;">${payLabel}</span></td>
+      <td style="padding:10px 8px;text-align:right;font-family:monospace;font-weight:700;color:${color};">${sign} ${f(e.amount)}</td></tr>`;
+  }).join('') : `<tr><td colspan="4" style="text-align:center;padding:24px;color:#9CA3AF;font-style:italic;">Sin movimientos en esta fecha.</td></tr>`;
+
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<title>Reporte Kajita ${activeDay}</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#fff;color:#111;}
+@page{margin:12mm;size:A4 portrait;}
+@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}}
+</style></head>
+<body>
+<div style="background:#F0F4F0;border-radius:10px;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span style="font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:#111;">Ka<span style="color:#84cc16;">j</span>ita</span>
+    ${bizName?`<span style="width:1px;height:20px;background:rgba(0,0,0,0.15);display:inline-block;"></span><span style="font-family:monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#374151;">${bizName}</span>`:''}
+  </div>
+  <div style="text-align:right;">
+    <div style="font-size:14px;font-weight:600;color:#111;">${dateStr}</div>
+    <div style="font-family:monospace;font-size:10px;color:#6B7280;margin-top:2px;">Impreso ${now.toLocaleDateString('es-PE')} · ${timeStr} &nbsp;·&nbsp; Cierre de caja · Reporte</div>
+  </div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px;">
+  ${[['Balance',f(bal),'#2563EB'],['Ingresos',f(inc),'#16A34A'],['Egresos',f(exp),'#DC2626'],['Por cobrar',f(cred),'#D97706']].map(([l,v,c])=>`
+  <div style="border:1.5px solid #E5E7EB;border-radius:10px;padding:12px;border-top:3px solid ${c};">
+    <div style="font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#6B7280;margin-bottom:4px;">${l}</div>
+    <div style="font-size:18px;font-weight:700;color:${c};">${v}</div>
+  </div>`).join('')}
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+  ${[['Caja física / Efectivo',f(cashInc-cashExp)],['Banca móvil / Digital',f(digInc-digExp)]].map(([l,v])=>`
+  <div style="border:1px solid #E5E7EB;border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">
+    <div style="font-size:12px;color:#374151;font-weight:600;">${l}</div>
+    <div style="font-family:monospace;font-size:16px;font-weight:700;color:#111;">${v}</div>
+  </div>`).join('')}
+</div>
+<div style="font-size:13px;font-weight:700;color:#111;margin-bottom:8px;">Movimientos del día <span style="font-weight:400;color:#6B7280;font-size:12px;">${dayEntries.length} registro${dayEntries.length!==1?'s':''}</span></div>
+<table style="width:100%;border-collapse:collapse;">
+  <thead><tr style="background:#F0F4F0;">
+    <th style="padding:8px;text-align:left;font-size:10px;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;font-weight:500;">Hora</th>
+    <th style="padding:8px;text-align:left;font-size:10px;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;font-weight:500;">Descripción</th>
+    <th style="padding:8px;text-align:left;font-size:10px;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;font-weight:500;">Método</th>
+    <th style="padding:8px;text-align:right;font-size:10px;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;font-weight:500;">Monto</th>
+  </tr></thead>
+  <tbody>${rowsHTML}</tbody>
+</table>
+<div style="border-top:1px solid #E5E7EB;margin-top:8px;padding-top:8px;display:flex;justify-content:space-between;">
+  <span style="font-size:11px;color:#6B7280;">+ ${f(inc)} ingresos &nbsp;·&nbsp; − ${f(exp)} egresos</span>
+  <span style="font-size:11px;font-weight:700;color:#111;">Neto: ${f(bal)}</span>
+</div>
+<div style="margin-top:30px;border-top:1px solid #E5E7EB;padding-top:8px;display:flex;justify-content:space-between;">
+  <span style="font-size:10px;color:#9CA3AF;">${bizName} · Kajita — Sistema de Caja Diaria</span>
+  <span style="font-size:10px;color:#9CA3AF;">${now.toLocaleDateString('es-PE')} · ${timeStr} · ${dayEntries.length} movimientos</span>
+</div>
+</body></html>`;
+
+  // Imprimir directo sin mostrar preview de Kajita
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:210mm;height:297mm;border:none;';
+  document.body.appendChild(iframe);
+  iframe.contentDocument.open();
+  iframe.contentDocument.write(html);
+  iframe.contentDocument.close();
+
+  iframe.onload = () => {
+    setTimeout(()=>{
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+      setTimeout(()=>document.body.removeChild(iframe), 2000);
+    }, 500);
+  };
+
+  toast('📄 Listo — elige "Guardar como PDF" en el diálogo');
+}
 
 function showPDFPreview() {
   const d = new Date(activeDay + 'T12:00:00');
@@ -4131,7 +4378,6 @@ function showPDFPreview() {
             {lbl:'Por cobrar',    val:fmt(cred),            color:C.cred, bg:'#FFFBEB'},
             {lbl:'Caja física',   val:(cNet<0?'−':'')+fmt(Math.abs(cNet)), color:C.cash, bg:'#FEFCE8'},
             {lbl:'Banca digital', val:(dNet<0?'−':'')+fmt(Math.abs(dNet)), color:C.dig,  bg:'#EFF6FF'},
-            {lbl:'Neto final',    val:(bal<0?'−':'')+fmt(Math.abs(bal)),   color:bal>=0?C.inc:C.exp, bg:bal>=0?'#F0FDF4':'#FFF1F2'},
           ].map(m=>`
             <div style="border:1px solid ${C.line};border-radius:8px;padding:9px 11px;background:${m.bg};">
               <div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;letter-spacing:.09em;text-transform:uppercase;color:${C.muted};margin-bottom:4px;">${m.lbl}</div>
@@ -4435,23 +4681,34 @@ async function handleDemoLogin(){
 // ── LOGIN ──
 async function handleLogin(e){
   e.preventDefault();
-  const email=document.getElementById('loginEmail').value.trim();
-  const pw=document.getElementById('loginPassword').value;
-  if(!email||!pw){showAuthError('Completa todos los campos');return;}
-  
+  const isPhone = document.getElementById('lmtPhone').classList.contains('active');
+  let email;
+  if(isPhone){
+    const phone = document.getElementById('loginPhone').value.replace(/\D/g,'');
+    if(phone.length < 9){ showAuthError('Ingresa un número válido de 9 dígitos'); return; }
+    email = phoneToEmail(phone);
+  } else {
+    email = document.getElementById('loginEmail').value.trim();
+    if(!email){ showAuthError('Ingresa tu email'); return; }
+  }
+  const pw = document.getElementById('loginPassword').value;
+  if(!pw){ showAuthError('Ingresa tu contraseña'); return; }
+
   const btn=document.getElementById('loginBtn');
   btn.disabled=true;
   document.getElementById('loginText').style.display='none';
   document.getElementById('loginLoader').style.display='inline';
   document.getElementById('authError').style.display='none';
-  
+
   try{
     const{data,error}=await sb.auth.signInWithPassword({email,password:pw});
     if(error)throw error;
     currentUser=window.currentUser=data.user;
     await startApp();
   }catch(err){
-    showAuthError(err.message.includes('Invalid')||err.message.includes('credentials')?'Email o contraseña incorrectos':'Error: '+err.message);
+    showAuthError(err.message.includes('Invalid')||err.message.includes('credentials')?
+      (isPhone ? 'Número o contraseña incorrectos' : 'Email o contraseña incorrectos') :
+      'Error: '+err.message);
     btn.disabled=false;
     document.getElementById('loginText').style.display='inline';
     document.getElementById('loginLoader').style.display='none';
@@ -4462,43 +4719,57 @@ async function handleLogin(e){
 async function handleRegister(e){
   e.preventDefault();
   const biz=document.getElementById('registerBusiness').value.trim();
-  const email=document.getElementById('registerEmail').value.trim();
+  const isPhone=document.getElementById('regLmtPhone').classList.contains('active');
+  let email;
+  if(isPhone){
+    const phone=document.getElementById('registerPhone').value.replace(/[^0-9]/g,'');
+    if(phone.length<9){showAuthError('Ingresa un número válido de 9 dígitos');return;}
+    email=phoneToEmail(phone);
+  } else {
+    email=document.getElementById('registerEmail').value.trim();
+    if(!email){showAuthError('Ingresa tu email');return;}
+  }
   const pw=document.getElementById('registerPassword').value;
   if(!biz){showAuthError('Ingresa el nombre de tu negocio');return;}
-  if(!email){showAuthError('Ingresa tu email');return;}
   if(pw.length<6){showAuthError('Contraseña mínimo 6 caracteres');return;}
-  
+
   const btn=document.getElementById('registerBtn');
   btn.disabled=true;
   document.getElementById('registerText').style.display='none';
   document.getElementById('registerLoader').style.display='inline';
   document.getElementById('authError').style.display='none';
-  
+
   try{
     const{data,error}=await sb.auth.signUp({email,password:pw,options:{data:{business_name:biz}}});
     if(error)throw error;
-    
     if(data.user){
-      // Guardar perfil en Supabase
-      try{await sb.from('profiles').upsert([{id:data.user.id,business_name:biz}]);}catch(e){}
-      
-      // Verificar si tiene sesión activa (sin confirmación de email)
+      const recoveryEmail = isPhone ? (document.getElementById('registerRecoveryEmail')?.value.trim()||null) : null;
+      try{await sb.from('profiles').upsert([{id:data.user.id, business_name:biz, recovery_email:recoveryEmail}]);}catch(e){}
       if(data.session){
         currentUser=window.currentUser=data.user;
         bizProfile={name:biz,rubro:''};
         await startApp();
         toast('¡Cuenta creada! Bienvenido a Kajita 🎉');
       } else {
-        // Supabase requiere confirmar email - intentar login directo
         const{data:loginData,error:loginErr}=await sb.auth.signInWithPassword({email,password:pw});
-        if(!loginErr && loginData.user){
+        if(!loginErr&&loginData.user){
           currentUser=window.currentUser=loginData.user;
           bizProfile={name:biz,rubro:''};
           await startApp();
           toast('¡Cuenta creada! Bienvenido a Kajita 🎉');
         } else {
-          // Necesita confirmar email
-          showAuthError('¡Cuenta creada! Revisa tu email para confirmar.','success');
+          // Intentar login automático
+        try{
+          const{data:ld,error:le}=await sb.auth.signInWithPassword({email,password:pw});
+          if(!le&&ld.user){
+            currentUser=window.currentUser=ld.user;
+            bizProfile={name:biz,rubro:''};
+            await startApp();
+            toast('¡Cuenta creada! Bienvenido a Kajita 🎉');
+            return;
+          }
+        }catch(e2){}
+        showAuthError(isPhone?'¡Cuenta creada! Ya puedes iniciar sesión.':'¡Cuenta creada! Revisa tu email para confirmar.','success');
           btn.disabled=false;
           document.getElementById('registerText').style.display='inline';
           document.getElementById('registerLoader').style.display='none';
@@ -4533,12 +4804,38 @@ async function refreshData(){
 
 // ── OLVIDÉ CONTRASEÑA ──
 async function handleForgotPassword(){
-  const email = document.getElementById('loginEmail').value.trim();
-  if(!email){
-    showAuthError('Escribe tu email primero');
-    document.getElementById('loginEmail').focus();
+  const isPhone = document.getElementById('lmtPhone')?.classList.contains('active');
+  
+  if(isPhone){
+    // Usuario con celular: buscar su email de recuperación
+    const phone = document.getElementById('loginPhone').value.replace(/[^0-9]/g,'');
+    if(phone.length < 9){ showAuthError('Ingresa tu número de celular primero'); return; }
+    
+    const phoneEmail = phoneToEmail(phone);
+    try{
+      // Buscar email de recuperación en profiles
+      const {data} = await sb.from('profiles').select('recovery_email').eq('id',
+        (await sb.auth.signInWithPassword({email:phoneEmail, password:'__check__'}))
+      ).maybeSingle();
+      
+      // Intentar reset directo al email del teléfono
+      const {error} = await sb.auth.resetPasswordForEmail(phoneEmail, {
+        redirectTo: window.location.origin + window.location.pathname
+      });
+      if(!error){
+        showAuthError('Si tienes email de recuperación registrado, te llegará el link ahí. Si no, contáctanos.','success');
+      } else {
+        showAuthError('No encontramos una cuenta con ese número.');
+      }
+    } catch(e) {
+      showAuthError('Contáctanos por WhatsApp para recuperar tu cuenta.');
+    }
     return;
   }
+  
+  // Usuario con email normal
+  const email = document.getElementById('loginEmail').value.trim();
+  if(!email){ showAuthError('Escribe tu email primero'); document.getElementById('loginEmail').focus(); return; }
   try{
     const{error}=await sb.auth.resetPasswordForEmail(email,{
       redirectTo: window.location.origin + window.location.pathname
